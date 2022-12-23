@@ -80,6 +80,16 @@ const SystemSection = () => {
     toastHelper.success(t("message.succeed-vacuum-database"));
   };
 
+  const handleDataBackupBtnClick = async () => {
+    try {
+      const backup = await api.backupDatabase();
+    } catch (error) {
+      console.error(error);
+      return;
+    }
+    toastHelper.success(t("message.succeed-backup-database"));
+  };
+
   const handleSaveAdditionalStyle = async () => {
     try {
       await api.upsertSystemSetting({
@@ -123,10 +133,14 @@ const SystemSection = () => {
         <Button onClick={handleUpdateCustomizedProfileButtonClick}>{t("common.edit")}</Button>
       </div>
       <div className="form-label">
-        <span className="normal-text">
+        <div className="normal-text">
           {t("setting.system-section.database-file-size")}: <span className="font-mono font-bold">{formatBytes(state.dbSize)}</span>
-        </span>
+        </div>
         <Button onClick={handleVacuumBtnClick}>{t("common.vacuum")}</Button>
+      </div>
+      <div className="form-label">
+        <div className="normal-text">{t("common.backup-database")}</div>
+        <Button onClick={handleDataBackupBtnClick}>{t("common.backup")}</Button>
       </div>
       <p className="title-text">{t("sidebar.setting")}</p>
       <div className="form-label">

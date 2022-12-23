@@ -18,6 +18,10 @@ export function vacuumDatabase() {
   return axios.post("/api/system/vacuum");
 }
 
+export function backupDatabase() {
+  return axios.get("/api/system/databackup");
+}
+
 export function signin(username: string, password: string) {
   return axios.post<ResponseObject<User>>("/api/auth/signin", {
     username,
