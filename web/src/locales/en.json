@@ -141,7 +141,7 @@
     "text-placeholder": "Starts with ^ to use regex"
   },
   "tag-list": {
-    "tip-text": "Enter `#tag ` to create"
+    "tip-text": "Input `#tag` to create"
   },
   "search": {
     "quickly-filter": "Quickly filter"
@@ -161,6 +161,7 @@
       "theme": "Theme",
       "default-memo-visibility": "Default memo visibility",
       "enable-folding-memo": "Enable folding memo",
+      "enable-powerful-editor": "Enable powerful editor",
       "editor-font-style": "Editor font style",
       "mobile-editor-style": "Mobile editor style",
       "default-memo-sort-option": "Memo display time",
@@ -191,9 +192,12 @@
     }
   },
   "amount-text": {
-    "memo": "MEMO",
-    "tag": "TAG",
-    "day": "DAY"
+    "memo_one": "MEMO",
+    "memo_other": "MEMOS",
+    "tag_one": "TAG",
+    "tag_other": "TAGS",
+    "day_one": "DAY",
+    "day_other": "DAYS"
   },
   "message": {
     "no-memos": "no memos 🌃",

@@ -1,9 +1,10 @@
-import { isNumber, last, toLower } from "lodash";
+import { isNumber, last, toLower, uniq } from "lodash";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { getMatchedNodes } from "../labs/marked";
 import { deleteMemoResource, upsertMemoResource } from "../helpers/api";
 import { TAB_SPACE_WIDTH, UNKNOWN_ID, VISIBILITY_SELECTOR_ITEMS } from "../helpers/consts";
-import { useEditorStore, useLocationStore, useMemoStore, useResourceStore, useUserStore } from "../store/module";
+import { useEditorStore, useLocationStore, useMemoStore, useResourceStore, useTagStore, useUserStore } from "../store/module";
 import * as storage from "../helpers/storage";
 import Icon from "./Icon";
 import toastHelper from "./Toast";
@@ -44,6 +45,7 @@ const MemoEditor = () => {
   const editorStore = useEditorStore();
   const locationStore = useLocationStore();
   const memoStore = useMemoStore();
+  const tagStore = useTagStore();
   const resourceStore = useResourceStore();
 
   const [state, setState] = useState<State>({
@@ -57,7 +59,8 @@ const MemoEditor = () => {
   const tagSelectorRef = useRef<HTMLDivElement>(null);
   const user = userStore.state.user as User;
   const setting = user.setting;
-  const tags = memoStore.state.tags;
+  const localSetting = user.localSetting;
+  const tags = tagStore.state.tags;
   const memoVisibilityOptionSelectorItems = VISIBILITY_SELECTOR_ITEMS.map((item) => {
     return {
       value: item.value,
@@ -177,35 +180,61 @@ const MemoEditor = () => {
       }
       return;
     }
-    if (!isShiftKey && event.key === "Tab") {
+    if (event.key === "Tab") {
       event.preventDefault();
-      const selectedContent = editorRef.current.getSelectedContent();
+      const tabSpace = " ".repeat(TAB_SPACE_WIDTH);
       const cursorPosition = editorRef.current.getCursorPosition();
-      editorRef.current.insertText(" ".repeat(TAB_SPACE_WIDTH));
-      if (selectedContent) {
-        editorRef.current.setCursorPosition(cursorPosition + TAB_SPACE_WIDTH);
-      }
-      return;
-    }
-
-    for (const symbol of pairSymbols) {
-      if (event.key === symbol[0]) {
-        event.preventDefault();
-        editorRef.current.insertText("", symbol[0], symbol[1]);
+      const selectedContent = editorRef.current.getSelectedContent();
+      if (isShiftKey) {
+        const beforeContent = editorRef.current.getContent().slice(0, cursorPosition);
+        for (let i = beforeContent.length - 1; i >= 0; i--) {
+          if (beforeContent[i] !== "\n") {
+            continue;
+          }
+          const rowStart = i + 1;
+          const isTabSpace = beforeContent.substring(rowStart, i + TAB_SPACE_WIDTH + 1) === tabSpace;
+          const isSpace = beforeContent.substring(rowStart, i + 2) === " ";
+          if (!isTabSpace && !isSpace) {
+            break;
+          }
+          const removeLength = isTabSpace ? TAB_SPACE_WIDTH : 1;
+          editorRef.current.removeText(rowStart, removeLength);
+          const startPos = cursorPosition - removeLength;
+          let endPos = startPos;
+          if (selectedContent) {
+            endPos += selectedContent.length;
+          }
+          editorRef.current.setCursorPosition(startPos, endPos);
+        }
+        return;
+      } else {
+        editorRef.current.insertText(tabSpace);
+        if (selectedContent) {
+          editorRef.current.setCursorPosition(cursorPosition + TAB_SPACE_WIDTH);
+        }
         return;
       }
     }
 
-    if (event.key === "Backspace") {
-      const cursor = editorRef.current.getCursorPosition();
-      const content = editorRef.current.getContent();
-      const deleteChar = content?.slice(cursor - 1, cursor);
-      const nextChar = content?.slice(cursor, cursor + 1);
-      if (pairSymbols.includes(`${deleteChar}${nextChar}`)) {
-        event.preventDefault();
-        editorRef.current.removeText(cursor - 1, 2);
+    if (localSetting.enablePowerfulEditor) {
+      for (const symbol of pairSymbols) {
+        if (event.key === symbol[0]) {
+          event.preventDefault();
+          editorRef.current.insertText("", symbol[0], symbol[1]);
+          return;
+        }
       }
-      return;
+      if (event.key === "Backspace") {
+        const cursor = editorRef.current.getCursorPosition();
+        const content = editorRef.current.getContent();
+        const deleteChar = content?.slice(cursor - 1, cursor);
+        const nextChar = content?.slice(cursor, cursor + 1);
+        if (pairSymbols.includes(`${deleteChar}${nextChar}`)) {
+          event.preventDefault();
+          editorRef.current.removeText(cursor - 1, 2);
+        }
+        return;
+      }
     }
   };
 
@@ -298,6 +327,13 @@ const MemoEditor = () => {
     } catch (error: any) {
       console.error(error);
       toastHelper.error(error.response.data.message);
+    }
+
+    // Upsert tag with the content.
+    const matchedNodes = getMatchedNodes(content);
+    const tagNameList = uniq(matchedNodes.filter((node) => node.parserName === "tag").map((node) => node.matchedContent.slice(1)));
+    for (const tagName of tagNameList) {
+      await tagStore.upsertTag(tagName);
     }
 
     setState((state) => {
@@ -517,7 +553,7 @@ const MemoEditor = () => {
           </button>
           <button className="action-btn confirm-btn" disabled={!allowSave || state.isUploadingResource} onClick={handleSaveBtnClick}>
             {t("editor.save")}
-            <img className="icon-img w-4 h-auto" src="/logo.webp" />
+            <img className="icon-img w-4 h-auto" src="/logo.png" />
           </button>
         </div>
       </div>

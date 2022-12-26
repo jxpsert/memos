@@ -1,4 +1,3 @@
-import { Option, Select } from "@mui/joy";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -9,6 +8,7 @@ import useLoading from "../hooks/useLoading";
 import Icon from "../components/Icon";
 import toastHelper from "../components/Toast";
 import AppearanceSelect from "../components/AppearanceSelect";
+import LocaleSelect from "../components/LocaleSelect";
 import "../less/auth.less";
 
 const validateConfig: ValidatorConfig = {
@@ -19,12 +19,12 @@ const validateConfig: ValidatorConfig = {
 };
 
 const Auth = () => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const globalStore = useGlobalStore();
   const userStore = useUserStore();
   const actionBtnLoadingState = useLoading(false);
-  const systemStatus = globalStore.state.systemStatus;
+  const { appearance, locale, systemStatus } = globalStore.state;
   const mode = systemStatus.profile.mode;
   const [username, setUsername] = useState(mode === "dev" ? "demohero" : "");
   const [password, setPassword] = useState(mode === "dev" ? "secret" : "");
@@ -41,6 +41,14 @@ const Auth = () => {
   const handlePasswordInputChanged = (e: React.ChangeEvent<HTMLInputElement>) => {
     const text = e.target.value as string;
     setPassword(text);
+  };
+
+  const handleLocaleSelectChange = (locale: Locale) => {
+    globalStore.setLocale(locale);
+  };
+
+  const handleAppearanceSelectChange = (appearance: Appearance) => {
+    globalStore.setAppearance(appearance);
   };
 
   const handleSigninBtnsClick = async () => {
@@ -109,20 +117,16 @@ const Auth = () => {
     actionBtnLoadingState.setFinish();
   };
 
-  const handleLocaleItemClick = (locale: Locale) => {
-    globalStore.setLocale(locale);
-  };
-
   return (
     <div className="page-wrapper auth">
       <div className="page-container">
         <div className="auth-form-wrapper">
           <div className="page-header-container">
             <div className="title-container">
-              <img className="logo-img" src={systemStatus.customizedProfile.iconUrl} alt="" />
+              <img className="logo-img" src={systemStatus.customizedProfile.logoUrl} alt="" />
               <p className="logo-text">{systemStatus.customizedProfile.name}</p>
             </div>
-            <p className="slogan-text">{t("slogan")}</p>
+            <p className="slogan-text">{systemStatus.customizedProfile.description || t("slogan")}</p>
           </div>
           <div className={`page-content-container ${actionBtnLoadingState.isLoading ? "requesting" : ""}`}>
             <div className="form-item-container input-form-container">
@@ -166,23 +170,9 @@ const Auth = () => {
           </div>
           {!systemStatus?.host && <p className="tip-text">{t("auth.host-tip")}</p>}
         </div>
-        <div className="w-full flex flex-row justify-center items-center gap-2">
-          <Select
-            className="!min-w-[9rem] w-auto whitespace-nowrap"
-            startDecorator={<Icon.Globe className="w-4 h-auto" />}
-            value={i18n.language}
-            onChange={(_, value) => handleLocaleItemClick(value as Locale)}
-          >
-            <Option value="en">English</Option>
-            <Option value="zh">中文</Option>
-            <Option value="vi">Tiếng Việt</Option>
-            <Option value="fr">French</Option>
-            <Option value="nl">Nederlands</Option>
-            <Option value="sv">Svenska</Option>
-            <Option value="de">German</Option>
-            <Option value="es">Spanish</Option>
-          </Select>
-          <AppearanceSelect />
+        <div className="flex flex-row items-center justify-center w-full gap-2">
+          <LocaleSelect value={locale} onChange={handleLocaleSelectChange} />
+          <AppearanceSelect value={appearance} onChange={handleAppearanceSelectChange} />
         </div>
       </div>
     </div>

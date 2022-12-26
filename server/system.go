@@ -37,6 +37,7 @@ func (s *Server) registerSystemRoutes(g *echo.Group) {
 		if hostUser != nil {
 			// data desensitize
 			hostUser.OpenID = ""
+			hostUser.Email = ""
 		}
 
 		systemStatus := api.SystemStatus{
@@ -47,7 +48,12 @@ func (s *Server) registerSystemRoutes(g *echo.Group) {
 			AdditionalStyle:  "",
 			AdditionalScript: "",
 			CustomizedProfile: api.CustomizedProfile{
-				Name: "memos",
+				Name:        "memos",
+				LogoURL:     "",
+				Description: "",
+				Locale:      "en",
+				Appearance:  "system",
+				ExternalURL: "",
 			},
 		}
 
@@ -72,7 +78,10 @@ func (s *Server) registerSystemRoutes(g *echo.Group) {
 				valueMap := value.(map[string]interface{})
 				systemStatus.CustomizedProfile = api.CustomizedProfile{
 					Name:        valueMap["name"].(string),
-					IconURL:     valueMap["iconUrl"].(string),
+					LogoURL:     valueMap["logoUrl"].(string),
+					Description: valueMap["description"].(string),
+					Locale:      valueMap["locale"].(string),
+					Appearance:  valueMap["appearance"].(string),
 					ExternalURL: valueMap["externalUrl"].(string),
 				}
 			}

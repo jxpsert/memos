@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { useLocationStore, useMemoStore, useUserStore } from "../store/module";
+import { useLocationStore, useMemoStore, useTagStore, useUserStore } from "../store/module";
 import { getMemoStats } from "../helpers/api";
 import * as utils from "../helpers/utils";
 import Icon from "./Icon";
@@ -17,8 +17,10 @@ const UserBanner = () => {
   const locationStore = useLocationStore();
   const userStore = useUserStore();
   const memoStore = useMemoStore();
+  const tagStore = useTagStore();
   const { user, owner } = userStore.state;
-  const { memos, tags } = memoStore.state;
+  const { memos } = memoStore.state;
+  const tags = tagStore.state.tags;
   const [username, setUsername] = useState("Memos");
   const [memoAmount, setMemoAmount] = useState(0);
   const [createdDays, setCreatedDays] = useState(0);
@@ -116,15 +118,15 @@ const UserBanner = () => {
       <div className="amount-text-container">
         <div className="status-text memos-text">
           <span className="amount-text">{memoAmount}</span>
-          <span className="type-text">{t("amount-text.memo")}</span>
+          <span className="type-text">{t("amount-text.memo", { count: memoAmount })}</span>
         </div>
         <div className="status-text tags-text">
           <span className="amount-text">{tags.length}</span>
-          <span className="type-text">{t("amount-text.tag")}</span>
+          <span className="type-text">{t("amount-text.tag", { count: tags.length })}</span>
         </div>
         <div className="status-text duration-text">
           <span className="amount-text">{createdDays}</span>
-          <span className="type-text">{t("amount-text.day")}</span>
+          <span className="type-text">{t("amount-text.day", { count: createdDays })}</span>
         </div>
       </div>
     </>

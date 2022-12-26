@@ -124,10 +124,7 @@ const ShareMemoDialog: React.FC<Props> = (props: Props) => {
   return (
     <>
       <div className="dialog-header-container">
-        <p className="title-text">
-          <span className="icon-text">🌄</span>
-          {t("common.share")} Memo
-        </p>
+        <p className="title-text">{t("common.share")} Memo</p>
         <button className="btn close-btn" onClick={handleCloseBtnClick}>
           <Icon.X className="icon-img" />
         </button>
@@ -147,7 +144,7 @@ const ShareMemoDialog: React.FC<Props> = (props: Props) => {
                 {state.memoAmount} MEMOS / {createdDays} DAYS
               </span>
             </div>
-            <img className="logo-img" src="/logo.webp" alt="" />
+            <img className="logo-img" src="/logo.png" alt="" />
           </div>
         </div>
         <div className="px-4 py-3 w-full flex flex-row justify-between items-center">

@@ -161,6 +161,7 @@
       "theme": "主题",
       "default-memo-visibility": "默认 Memo 可见性",
       "enable-folding-memo": "开启折叠 Memo",
+      "enable-powerful-editor": "开启编辑器自动补全",
       "editor-font-style": "编辑器字体样式",
       "mobile-editor-style": "移动端编辑器样式",
       "default-memo-sort-option": "Memo 显示时间",
@@ -191,9 +192,12 @@
     }
   },
   "amount-text": {
-    "memo": "MEMO",
-    "tag": "TAG",
-    "day": "DAY"
+    "memo_one": "MEMO",
+    "memo_other": "MEMOS",
+    "tag_one": "TAG",
+    "tag_other": "TAGS",
+    "day_one": "DAY",
+    "day_other": "DAYS"
   },
   "message": {
     "no-memos": "没有 Memo 了 🌃",

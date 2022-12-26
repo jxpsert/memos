@@ -5,7 +5,10 @@ interface Profile {
 
 interface CustomizedProfile {
   name: string;
-  iconUrl: string;
+  logoUrl: string;
+  description: string;
+  locale: Locale;
+  appearance: Appearance;
   externalUrl: string;
 }
 
