@@ -73,7 +73,9 @@ const UsageHeatMap = () => {
     const bounding = utils.getElementBounding(event.target as HTMLElement);
     tempDiv.style.left = bounding.left + "px";
     tempDiv.style.top = bounding.top - 2 + "px";
-    tempDiv.innerHTML = `${item.count} memos on <span className="date-text">${new Date(item.timestamp as number).toDateString()}</span>`;
+    tempDiv.innerHTML = `${item.count} ${t("amount-text.memo", {
+      count: item.count,
+    }).toLowerCase()} on <span className="date-text">${new Date(item.timestamp as number).toDateString()}</span>`;
     document.body.appendChild(tempDiv);
 
     if (tempDiv.offsetLeft - tempDiv.clientWidth / 2 < 0) {
